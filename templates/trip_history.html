@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Trip History - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .trip-header {
+        background: linear-gradient(135deg, #3acdbe 0%, #1a998c 100%);
+        color: white;
+        padding: 60px 2rem;
+        text-align: center;
+    }
+    
+    .trip-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    
+    .trip-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+    }
+    
+    .trip-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 40px 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .trip-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .trip-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .trip-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .trip-card-content {
+        padding: 20px;
+    }
+    
+    .trip-card h3 {
+        color: #1a998c;
+        margin: 0 0 10px;
+    }
+    
+    .trip-card .date {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .trip-card .notes {
+        color: #888;
+        font-style: italic;
+        margin: 10px 0;
+    }
+    
+    .trip-card .rating {
+        color: #FFD700;
+        font-weight: bold;
+    }
+    
+    .btn-view {
+        display: inline-block;
+        background: #1a998c;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 10px;
+        transition: all 0.3s;
+    }
+    
+    .btn-view:hover {
+        background: #147a70;
+    }
+    
+    .add-trip-form {
+        max-width: 600px;
+        margin: 0 auto 40px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .add-trip-form h3 {
+        color: #1a998c;
+        margin-bottom: 20px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .btn-add {
+        background: #1a998c;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-add:hover {
+        background: #147a70;
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #666;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="trip-header">
+    <h1>🚗 My Trip History</h1>
+    <p>Your travel memories</p>
+</div>
+
+<div class="container" style="max-width: 1200px; margin: 40px auto; padding: 0 2rem;">
+    <!-- Add Trip Form -->
+    <div class="add-trip-form">
+        <h3>➕ Add a Trip</h3>
+        <form id="addTripForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dest_id">Destination</label>
+                    <select id="dest_id" name="destination_id" required>
+                        <option value="">Select a destination</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="visit_date">Visit Date</label>
+                    <input type="date" id="visit_date" name="visit_date" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Share your travel experience..."></textarea>
+            </div>
+            <button type="submit" class="btn-add">Add Trip</button>
+        </form>
+    </div>
+    
+    {% if trips %}
+    <div class="trip-grid">
+        {% for trip in trips %}
+        <div class="trip-card">
+            <img src="{{ trip.image_url }}" alt="{{ trip.name }}" onerror="this.src='https://via.placeholder.com/300x200?text={{ trip.name }}'">
+            <div class="trip-card-content">
+                <h3>{{ trip.name }}</h3>
+                <p class="date">📅 {{ trip.visit_date }}</p>
+                <p class="rating">⭐ {{ trip.rating }}</p>
+                {% if trip.notes %}
+                <p class="notes">{{ trip.notes }}</p>
+                {% endif %}
+                <a href="/destination/{{ trip.destination_id }}" class="btn-view">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🧳</div>
+        <h2>No trips yet!</h2>
+        <p>Start adding your travel history above.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Load destinations for the form
+    fetch('/destinations')
+        .then(res => res.text())
+        .then(() => {
+            fetch('/api/suggest-trip', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({budget: 100000, duration: 7, interest: 'all'})
+            })
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('dest_id');
+                if (data.recommendations) {
+                    data.recommendations.forEach(dest => {
+                        const option = document.createElement('option');
+                        option.value = dest.id;
+                        option.textContent = dest.name + ' - ' + dest.state;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        });
+
+    // Handle add trip form
+    document.getElementById('addTripForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            destination_id: document.getElementById('dest_id').value,
+            visit_date: document.getElementById('visit_date').value,
+            notes: document.getElementById('notes').value
+        };
+        
+        fetch('/api/trip-history', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding trip. Please login first.');
+        });
+    });
+</script>
+{% endblock %}

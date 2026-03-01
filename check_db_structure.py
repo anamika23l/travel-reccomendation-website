@@ -1,0 +1,10 @@
+import sqlite3
+conn = sqlite3.connect('database/travel.db')
+cur = conn.cursor()
+cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+print('Tables:', cur.fetchall())
+cur.execute("PRAGMA table_info(destinations)")
+print('Destinations columns:', cur.fetchall())
+cur.execute("SELECT * FROM destinations LIMIT 3")
+print('Sample data:', cur.fetchall())
+conn.close()

@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Packing List - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .packing-header {
+        background: linear-gradient(135deg, #3acdbe 0%, #1a998c 100%);
+        color: white;
+        padding: 60px 2rem;
+        text-align: center;
+    }
+    
+    .packing-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    
+    .packing-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+    }
+    
+    .packing-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 2rem;
+    }
+    
+    .packing-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .packing-card h3 {
+        color: #1a998c;
+        margin-bottom: 15px;
+    }
+    
+    .packing-form {
+        margin-bottom: 30px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .btn-generate {
+        background: #1a998c;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-generate:hover {
+        background: #147a70;
+    }
+    
+    .packing-items {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .packing-items li {
+        padding: 10px 15px;
+        margin: 8px 0;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .packing-items li::before {
+        content: "☐";
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .packing-list-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .packing-list-card h4 {
+        color: #1a998c;
+        margin: 0 0 10px;
+    }
+    
+    .packing-list-card .trip-type {
+        background: #e0f7f5;
+        color: #1a998c;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+    
+    .packing-list-card .date {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #666;
+    }
+</style>
+
+<div class="packing-header">
+    <h1>🎒 My Packing Lists</h1>
+    <p>Smart packing suggestions for your trips</p>
+</div>
+
+<div class="packing-container">
+    <!-- Generate New Packing List -->
+    <div class="packing-card">
+        <h3>✨ Generate New Packing List</h3>
+        <form id="packingForm">
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label for="dest_id">Destination (Optional)</label>
+                    <select id="dest_id" name="destination_id">
+                        <option value="">Any destination</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="trip_type">Trip Type</label>
+                    <select id="trip_type" name="trip_type">
+                        <option value="general">General</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="beach">Beach Vacation</option>
+                        <option value="business">Business</option>
+                        <option value="honeymoon">Honeymoon</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-generate">Generate Packing List</button>
+        </form>
+    </div>
+    
+    <!-- Saved Packing Lists -->
+    <h3 style="color: #1a998c; margin-bottom: 20px;">Your Saved Packing Lists</h3>
+    
+    {% if packing_lists %}
+        {% for pl in packing_lists %}
+        <div class="packing-list-card">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h4>{{ pl.trip_type|title }} Trip{% if pl.dest_name %} - {{ pl.dest_name }}{% endif %}</h4>
+                    <span class="trip-type">{{ pl.trip_type|title }}</span>
+                </div>
+            </div>
+            <ul class="packing-items">
+                {% for item in pl.items.split(',') %}
+                <li>{{ item.strip() }}</li>
+                {% endfor %}
+            </ul>
+            <p class="date">Created: {{ pl.created_at }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <p>No packing lists yet. Generate one above!</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Load destinations
+    fetch('/api/suggest-trip', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({budget: 100000, duration: 7, interest: 'all'})
+    })
+    .then(res => res.json())
+    .then(data => {
+        const select = document.getElementById('dest_id');
+        if (data.recommendations) {
+            data.recommendations.forEach(dest => {
+                const option = document.createElement('option');
+                option.value = dest.id;
+                option.textContent = dest.name + ' - ' + dest.state;
+                select.appendChild(option);
+            });
+        }
+    });
+
+    // Handle form submit
+    document.getElementById('packingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            destination_id: document.getElementById('dest_id').value || null,
+            trip_type: document.getElementById('trip_type').value
+        };
+        
+        fetch('/api/packing-list', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error generating packing list. Please login first.');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}All Destinations - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .hero h1 {
+        color: white;
+        margin: 0;
+        font-size: 2.8rem;
+    }
+
+    .hero p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 10px 0 0 0;
+    }
+    
+    /* Professional Circular Favorite Button - Meesho Style */
+    .favorite-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .favorite-btn.favorited {
+        background: #ff4757;
+        color: white;
+    }
+    
+    .destination-card {
+        position: relative;
+    }
+</style>
+
+<section class="hero" style="padding: 60px 2rem;">
+    <h1>All Destinations</h1>
+    <p>Explore our complete collection of amazing travel destinations</p>
+</section>
+
+<section class="container mt-40 mb-40">
+    <div class="destinations-grid">
+        {% for dest in destinations %}
+        <div class="destination-card">
+            <button class="favorite-btn" onclick="toggleFavorite({{ dest.id }}, this)" title="Add to favorites">🤍</button>
+            <img src="{{ dest.image_url }}" alt="{{ dest.name }}" onerror="this.src='https://via.placeholder.com/500x300?text={{ dest.name }}'">
+            <div class="card-content">
+                <h3>{{ dest.name }}</h3>
+                <div class="card-meta">
+                    <span class="card-type">{{ dest.type }}</span>
+                    <span class="card-rating">⭐ {{ dest.rating }}</span>
+                </div>
+                <p>{{ dest.description }}</p>
+                <div class="card-price">₹{{ dest.cost_per_day }}</div>
+                <div style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                    <strong>Category:</strong> {{ dest.type | capitalize }}
+                </div>
+                <a href="/destination/{{ dest.id }}" class="btn-explore" style="display: inline-block; padding: 10px 20px; background: #007a80; color: white; text-decoration: none; border-radius: 8px; margin-top: 10px;">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+    // Toggle favorite function
+    function toggleFavorite(destId, btn) {
+        // Check if already favorited
+        const isFavorited = btn.classList.contains('favorited');
+        
+        if (isFavorited) {
+            // Remove from favorites
+            fetch('/api/favorites/' + destId, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(result => {
+                    btn.classList.remove('favorited');
+                    btn.innerHTML = '🤍';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Please login to manage favorites!');
+                });
+        } else {
+            // Add to favorites
+            fetch('/api/favorites/' + destId, { method: 'POST' })
+                .then(res => res.json())
+                .then(result => {
+                    btn.classList.add('favorited');
+                    btn.innerHTML = '❤️';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Please login to add favorites!');
+                });
+        }
+    }
+    
+    // Check favorite status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.favorite-btn');
+        buttons.forEach(btn => {
+            const match = btn.getAttribute('onclick').match(/toggleFavorite\((\d+)/);
+            if (match) {
+                const destId = match[1];
+                fetch('/api/favorites/check/' + destId)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.is_favorite) {
+                            btn.classList.add('favorited');
+                            btn.innerHTML = '❤️';
+                        } else {
+                            btn.innerHTML = '🤍';
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '🤍';
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}

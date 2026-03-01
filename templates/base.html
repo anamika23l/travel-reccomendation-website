@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TravelAI - Discover Amazing Destinations{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">TravelAI</a>
+            <ul>
+                <li><a href="/planner">Plan Trip</a></li>
+                <li><a href="/destinations">Destinations</a></li>
+                {% if user %}
+                <li><a href="/favorites">❤️ Favorites</a></li>
+                <li><a href="/trip-history">🚗 Trip History</a></li>
+                <li><a href="/packing-list">🎒 Packing List</a></li>
+                <li><a href="/blog">📰 Blog</a></li>
+                <li class="nav-user">
+                    <span class="user-badge">👤 {{ user }}</span>
+                    <a href="/profile" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-left: 5px;">Profile</a>
+                    <a href="/logout" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Logout</a>
+                </li>
+                {% else %}
+                <li><a href="/login" class="btn btn-primary">Login</a></li>
+                <li><a href="/register" class="btn btn-secondary">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 TravelAI. All rights reserved. | Explore the world with us! 🌟</p>
+    </footer>
+</body>
+</html>

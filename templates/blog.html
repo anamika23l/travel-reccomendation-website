@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Travel Blog - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .blog-header {
+        background: linear-gradient(135deg, #3acdbe 0%, #1a998c 100%);
+        color: white;
+        padding: 60px 2rem;
+        text-align: center;
+    }
+    
+    .blog-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    
+    .blog-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+    }
+    
+    .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+        padding: 40px 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .blog-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        text-decoration: none;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .blog-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .blog-card-content {
+        padding: 20px;
+    }
+    
+    .blog-card h3 {
+        color: #1a998c;
+        margin: 0 0 10px;
+    }
+    
+    .blog-card .category {
+        background: #e0f7f5;
+        color: #1a998c;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    
+    .blog-card .excerpt {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .blog-card .author {
+        color: #999;
+        font-size: 0.9rem;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="blog-header">
+    <h1>📰 Travel Blog</h1>
+    <p>Travel guides, tips and stories</p>
+</div>
+
+<div class="blog-grid">
+    {% for post in posts %}
+    <a href="/blog/{{ post.id }}" class="blog-card">
+        <img src="{{ post.image_url }}" alt="{{ post.title }}" onerror="this.src='https://via.placeholder.com/400x200?text=Travel+Blog'">
+        <div class="blog-card-content">
+            <span class="category">{{ post.category }}</span>
+            <h3>{{ post.title }}</h3>
+            <p class="excerpt">{{ post.content[:150] }}...</p>
+            <p class="author">By {{ post.author }}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if not posts %}
+<div style="text-align: center; padding: 60px; color: #666;">
+    <p>No blog posts yet. Check back soon!</p>
+</div>
+{% endif %}
+{% endblock %}

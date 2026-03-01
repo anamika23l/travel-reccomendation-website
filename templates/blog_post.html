@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .post-header {
+        background: linear-gradient(135deg, #3acdbe 0%, #1a998c 100%);
+        color: white;
+        padding: 60px 2rem;
+        text-align: center;
+    }
+    
+    .post-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    
+    .post-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 2rem;
+    }
+    
+    .post-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .post-card .meta {
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .post-card .category {
+        background: #e0f7f5;
+        color: #1a998c;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+    
+    .post-card .content {
+        line-height: 1.8;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #1a998c;
+        text-decoration: none;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="post-header">
+    <h1>{{ post.title }}</h1>
+</div>
+
+<div class="post-container">
+    <div class="post-card">
+        <div class="meta">
+            <span class="category">{{ post.category }}</span>
+            <span style="margin-left: 10px;">By {{ post.author }}</span>
+        </div>
+        <div class="content">
+            {{ post.content }}
+        </div>
+        <a href="/blog" class="back-link">← Back to Blog</a>
+    </div>
+</div>
+{% endblock %}

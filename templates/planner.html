@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+
+{% block title %}AI Travel Planner - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .planner-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .planner-header {
+        background: linear-gradient(135deg, #007a80 0%, #005f66 100%);
+        color: white;
+        padding: 40px 2rem;
+        text-align: center;
+        border-radius: 15px;
+        margin-bottom: 40px;
+    }
+
+    .planner-header h1 {
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+    }
+
+    .planner-header p {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .planner-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+
+    .input-section {
+        background: #1c1c1c;
+        padding: 30px;
+        border-radius: 15px;
+        border: 2px solid #007a80;
+    }
+
+    .input-section h2 {
+        color: #007a80;
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #007a80;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #00adb5;
+        box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.3);
+    }
+
+    .form-group small {
+        display: block;
+        color: #aaaaaa;
+        margin-top: 5px;
+        font-size: 0.9rem;
+    }
+
+    .interests {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .interest-btn {
+        padding: 12px;
+        border: 2px solid #007a80;
+        background: #000000;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .interest-btn:hover {
+        border-color: #00adb5;
+        background: #1c1c1c;
+    }
+
+    .interest-btn.selected {
+        background: #007a80;
+        color: #ffffff;
+        border-color: #007a80;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #007a80 0%, #005f66 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 122, 128, 0.4);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .results-section {
+        background: #1c1c1c;
+        padding: 30px;
+        border-radius: 15px;
+        border: 2px solid #007a80;
+    }
+
+    .results-section h2 {
+        color: #007a80;
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-size: 1.5rem;
+    }
+
+    .suggestions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .suggestion-card {
+        background: #000000 !important;
+        border: 2px solid #007a80;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .suggestion-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 122, 128, 0.3);
+    }
+
+    .suggestion-image-container {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(135deg, #007a80 0%, #005f66 100%);
+    }
+
+    .suggestion-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .suggestion-content {
+        padding: 20px;
+        background: #000000;
+    }
+
+    .suggestion-card h3 {
+        color: #00ff00 !important;
+        margin: 0 0 10px 0;
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+
+    .suggestion-meta {
+        display: flex;
+        gap: 15px;
+        margin: 10px 0;
+        font-size: 0.95rem;
+        color: #00ff00 !important;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #00ff00 !important;
+    }
+
+    /* Star Rating Styles */
+    .star-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .star {
+        color: #FFD700;
+        font-size: 1rem;
+    }
+
+    .star.empty {
+        color: #444444;
+    }
+
+    .star.half {
+        position: relative;
+        color: #444444;
+    }
+
+    .star.half::before {
+        content: '★';
+        position: absolute;
+        left: 0;
+        width: 50%;
+        overflow: hidden;
+        color: #FFD700;
+    }
+
+    .rating-number {
+        color: #FFD700 !important;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    .suggestion-desc {
+        color: #ffffff !important;
+        margin: 10px 0;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .budget-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 15px 0;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .budget-indicator.within {
+        background: #1a3d2e;
+        color: #4ade80;
+    }
+
+    .budget-indicator.over {
+        background: #3d1a1a;
+        color: #f87171;
+    }
+
+    .cost-breakdown {
+        background: #0d2d33;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        font-size: 0.95rem;
+        color: #aaaaaa;
+    }
+
+    .cost-breakdown strong {
+        display: block;
+        color: #ffffff;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-cta {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn-explore {
+        padding: 10px 20px;
+        background: #007a80;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-explore:hover {
+        background: #005f66;
+    }
+
+    /* Favorite Heart Button */
+    .favorite-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        transition: all 0.3s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        background: white;
+    }
+
+    .favorite-btn.favorited {
+        background: #ff4757;
+        color: white;
+    }
+
+    .favorite-btn.favorited::after {
+        content: '❤️';
+    }
+
+    .favorite-btn:not(.favorited)::after {
+        content: '🤍';
+    }
+
+    .btn-favorite {
+        padding: 10px 20px;
+        background: #ff4757;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-favorite:hover {
+        background: #ff6b81;
+    }
+
+    .btn-favorite.remove {
+        background: #666;
+    }
+
+    .btn-favorite.remove:hover {
+        background: #888;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #007a80;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #1c1c1c;
+        border-top-color: #007a80;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #aaaaaa;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .planner-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .interests {
+            grid-template-columns: 1fr;
+        }
+
+        .planner-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .suggestion-image-container {
+            height: 150px;
+        }
+
+        .suggestion-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+</style>
+
+<div class="planner-header">
+    <h1>AI Travel Planner</h1>
+    <p>Discover your perfect Indian destination with smart recommendations</p>
+</div>
+
+<div class="planner-container">
+    <div class="planner-content">
+        <!-- Input Section -->
+        <div class="input-section">
+            <h2>Tell Us Your Preferences</h2>
+            <form id="plannerForm">
+                <div class="form-group">
+                    <label for="budget">💰 Total Budget (₹)</label>
+                    <input type="number" id="budget" min="40000" step="1000" value="40000" required>
+                    <small>Enter your budget (minimum ₹40,000)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">📅 Trip Duration (Days)</label>
+                    <input type="number" id="duration" min="1" max="30" value="5" required>
+                    <small>Enter the number of days do you have for the trip</small>
+                </div>
+
+                <div class="form-group">
+                    <label>🎯 Choose Your Interest:</label>
+                    <p style="color: #aaaaaa; font-size: 0.9rem; margin-bottom: 15px;">Click on a category to get instant recommendations!</p>
+                    <div class="interests">
+                        <button type="button" class="interest-btn selected" data-value="mountain" onclick="selectInterest('mountain')">⛰️ Mountains</button>
+                        <button type="button" class="interest-btn" data-value="beach" onclick="selectInterest('beach')">🏖️ Beaches</button>
+                        <button type="button" class="interest-btn" data-value="culture" onclick="selectInterest('culture')">🏛️ Culture</button>
+                        <button type="button" class="interest-btn" data-value="adventure" onclick="selectInterest('adventure')">🧗 Adventure</button>
+                        <button type="button" class="interest-btn" data-value="religious" onclick="selectInterest('religious')">🕉️ Religious</button>
+                    </div>
+                    <input type="hidden" id="interest" value="mountain">
+                </div>
+
+                <button type="button" class="btn-submit" onclick="getRecommendations()">🔍 Get Recommendations</button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <h2>✨ Popular Destinations</h2>
+            <div id="resultsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading destinations...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Default image for destinations without images
+    const defaultImage = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop';
+
+    // Function to generate star rating HTML
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let starsHtml = '<div class="star-rating">';
+        
+        // Add full stars
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<span class="star">★</span>';
+        }
+        
+        // Add half star if needed
+        if (hasHalfStar) {
+            starsHtml += '<span class="star half">★</span>';
+        }
+        
+        // Add empty stars
+        for (let i = 0; i < emptyStars; i++) {
+            starsHtml += '<span class="star empty">★</span>';
+        }
+        
+        starsHtml += '<span class="rating-number">' + rating.toFixed(1) + '</span>';
+        starsHtml += '</div>';
+        
+        return starsHtml;
+    }
+
+    // Function to select interest when clicking on buttons
+    function selectInterest(interest) {
+        document.querySelectorAll('.interest-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelector(`[data-value="${interest}"]`).classList.add('selected');
+        document.getElementById('interest').value = interest;
+    }
+
+    // Function to get recommendations
+    function getRecommendations() {
+        const budget = parseInt(document.getElementById('budget').value);
+        const duration = parseInt(document.getElementById('duration').value);
+        const interest = document.getElementById('interest').value;
+
+        // Show loading state
+        const resultsContainer = document.getElementById('resultsContainer');
+        resultsContainer.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Finding your perfect destinations...</p></div>';
+
+        fetch('/api/suggest-trip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                budget: budget,
+                duration: duration,
+                interest: interest
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            renderRecommendations(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <p>Something went wrong. Please try again.</p>
+                </div>
+            `;
+        });
+    }
+
+    // Interest selection
+    document.querySelectorAll('.interest-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.interest-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('interest').value = this.dataset.value;
+        });
+    });
+
+    // Function to render recommendations
+    function renderRecommendations(data) {
+        const resultsContainer = document.getElementById('resultsContainer');
+        
+        if (data.recommendations && data.recommendations.length > 0) {
+            let html = '';
+            data.recommendations.forEach((dest, index) => {
+                const isWithinBudget = dest.within_budget;
+                
+                html += `
+                    <div class="suggestion-card">
+                        <div class="suggestion-image-container">
+                            <button class="favorite-btn" onclick="toggleFavorite(${dest.id}, this)" title="Add to favorites"></button>
+                            <img src="${dest.image_url || defaultImage}" alt="${dest.name}" class="suggestion-image" onerror="this.src='${defaultImage}'">
+                        </div>
+                        <div class="suggestion-content">
+                            <h3>${index + 1}. ${dest.name}</h3>
+                            <div class="suggestion-meta">
+                                <div class="meta-item">📍 ${dest.state}</div>
+                                <div class="meta-item">${generateStars(dest.rating || 0)}</div>
+                                <div class="meta-item">🌡️ ${dest.temperature || 'N/A'}</div>
+                            </div>
+                            <p class="suggestion-desc">${dest.description || dest.attractions || 'Beautiful destination worth visiting!'}</p>
+                            <div class="budget-indicator ${isWithinBudget ? 'within' : 'over'}">
+                                ${isWithinBudget ? '✅ Within Budget' : '⚠️ Over Budget'} - Total: ₹${dest.estimated_cost}
+                            </div>
+                            <div class="suggestion-cta">
+                                <a href="/destination/${dest.id}" class="btn-explore">View Details</a>
+                                <button class="btn-favorite" onclick="toggleFavorite(${dest.id}, this)">❤️ Add to Favorites</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            resultsContainer.innerHTML = html;
+        } else {
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">😞</div>
+                    <p>No destinations found matching your criteria. Try adjusting your budget or duration.</p>
+                </div>
+            `;
+        }
+    }
+
+    // Show initial empty state - user must click to get recommendations
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">🗺️</div>
+            <p>Enter your budget, duration, and click on an interest category or press "Get Recommendations" to see destinations!</p>
+        </div>
+    `;
+
+    // Toggle favorite function
+    function toggleFavorite(destId, btn) {
+        fetch('/api/favorites/check/' + destId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.is_favorite) {
+                    fetch('/api/favorites/' + destId, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(result => {
+                            btn.classList.remove('favorited');
+                            if (btn.classList.contains('btn-favorite')) {
+                                btn.textContent = 'Add to Favorites';
+                                btn.classList.remove('remove');
+                            }
+                            alert('Removed from favorites!');
+                        });
+                } else {
+                    fetch('/api/favorites/' + destId, { method: 'POST' })
+                        .then(res => res.json())
+                        .then(result => {
+                            btn.classList.add('favorited');
+                            if (btn.classList.contains('btn-favorite')) {
+                                btn.textContent = 'Remove from Favorites';
+                                btn.classList.add('remove');
+                            }
+                            alert('Added to favorites!');
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Please login to add favorites!');
+            });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Home - TravelAI{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Welcome to TravelAI</h1>
+        <p>Discover amazing destinations tailored to your budget and interests</p>
+        {% if not user %}
+        <a href="/register" class="btn btn-secondary">Get Started</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recommendations Form -->
+<section class="container mt-40">
+    <form action="/recommend" method="POST" class="recommendation-form">
+        <h2>Find Your Perfect Destination</h2>
+        
+        <div class="form-group">
+            <label for="budget">Budget (in ₹)</label>
+            <input type="number" id="budget" name="budget" placeholder="Enter your budget" min="1000" required>
+        </div>
+
+        <div class="form-group">
+            <label for="interest"> Interest Type</label>
+            <select id="interest" name="interest" required>
+                <option value="">Select a category...</option>
+                <option value="beach"> Beach</option>
+                <option value="mountain"> Mountain</option>
+                <option value="culture"> Culture</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">✨ Get Recommendations</button>
+    </form>
+</section>
+
+<!-- Featured Destinations -->
+<section class="container mt-40 mb-40">
+    <h2 class="text-center" style="color: white; font-size: 2.5rem; margin-bottom: 40px;">Featured Destinations</h2>
+    <div class="destinations-grid">
+        {% for dest in destinations[:6] %}
+        <div class="destination-card">
+            <img src="{{ dest.image_url }}" alt="{{ dest.name }}" data-fallback="https://via.placeholder.com/500x300?text={{ dest.name }}">
+            <div class="card-content">
+                <h3>{{ dest.name }}</h3>
+                <div class="card-meta">
+                    <span class="card-type">{{ dest.category }}</span>
+                    <span class="card-rating">⭐ {{ dest.rating }}</span>
+                </div>
+                <p>{{ dest.description[:60] }}...</p>
+                <div class="card-price">₹{{ dest.cost_per_day }}</div>
+                <div class="card-actions">
+                    <a href="/destination/{{ dest.id }}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+    .recommendation-form {
+        max-width: 600px;
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        margin: 0 auto;
+    }
+
+    .recommendation-form h2 {
+        text-align: center;
+        color: #667eea;
+        margin-bottom: 30px;
+    }
+
+    .recommendation-form button {
+        width: 100%;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('img[data-fallback]').forEach(img => {
+        img.addEventListener('error', function() {
+            this.src = this.dataset.fallback;
+        });
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,643 @@
+{% extends "base.html" %}
+
+{% block title %}{{ destination.name }} - Complete Guide - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    .detail-hero {
+        background: linear-gradient(135deg, rgba(0, 122, 128, 0.8) 0%, rgba(0, 95, 102, 0.8) 100%), 
+                    url('{{ destination.image_url }}') center/cover;
+        color: white;
+        padding: 60px 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .detail-hero h1 {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .detail-hero .meta {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        font-size: 1.1rem;
+        margin-top: 20px;
+    }
+
+    .detail-hero .meta-item {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .detail-content {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 2rem;
+    }
+
+    .section {
+        margin-bottom: 50px;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        color: #00d4dd;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #00d4dd;
+        padding-bottom: 10px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e5e7eb;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        padding: 12px 25px;
+        border: none;
+        background: none;
+        color: #666;
+        cursor: pointer;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+        color: #00d4dd;
+        border-bottom-color: #00d4dd;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .hotel-card, .activity-card, .tip-card, .emergency-card {
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(15, 15, 30, 0.9) 100%);
+        border: 1px solid #00d4dd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+
+    .hotel-card:hover, .activity-card:hover, .tip-card:hover, .emergency-card:hover {
+        box-shadow: 0 8px 20px rgba(0, 122, 128, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .price-tag {
+        display: inline-block;
+        background: linear-gradient(135deg, #007a80 0%, #005f66 100%);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .stars {
+        color: #f59e0b;
+        font-size: 1.2rem;
+    }
+
+    .amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .amenity {
+        background: linear-gradient(135deg, rgba(0, 122, 128, 0.2) 0%, rgba(0, 95, 102, 0.2) 100%);
+        color: #ffffff;
+        padding: 6px 14px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        border: 1px solid #00dddd;
+    }
+
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .similar-card {
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(15, 15, 30, 0.9) 100%);
+        border: 2px solid #007a80;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .similar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 122, 128, 0.4);
+    }
+
+    .similar-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .similar-card-content {
+        padding: 15px;
+    }
+
+    .similar-card h3 {
+        color: #00ff00 !important;
+        margin: 0 0 5px 0;
+        font-size: 1.2rem;
+    }
+
+    .similar-card p {
+        color: #aaaaaa !important;
+        margin: 0 0 10px 0;
+        font-size: 0.9rem;
+    }
+
+    .filters {
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(15, 15, 30, 0.8) 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        border: 1px solid #007a80;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #00ff00;
+    }
+
+    .filter-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #007a80;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, rgba(0, 122, 128, 0.15) 0%, rgba(0, 95, 102, 0.15) 100%);
+        border-left: 4px solid #007a80;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .info-box strong {
+        color: #00ff00;
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .info-box p {
+        color: #e0e0e0;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    .rating-box {
+        background: linear-gradient(135deg, rgba(0, 122, 128, 0.2) 0%, rgba(0, 95, 102, 0.2) 100%);
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 20px;
+        border: 2px solid #007a80;
+    }
+
+    .rating-box .big-stars {
+        font-size: 2.5rem;
+        color: #fbbf24;
+    }
+
+    .rating-box p {
+        color: #e0e0e0;
+        font-size: 1.1rem;
+    }
+
+    .description {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #ffffff !important;
+        margin-bottom: 20px;
+    }
+
+    /* Star Rating Styles */
+    .star-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .star {
+        color: #FFD700;
+        font-size: 1rem;
+    }
+
+    .star.empty {
+        color: #444444;
+    }
+
+    .rating-number {
+        color: #FFD700 !important;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    /* Emergency Card Styles */
+    .emergency-card {
+        border-left: 4px solid #ff4757;
+    }
+
+    .emergency-card h3 {
+        color: #ff4757 !important;
+        margin: 0 0 10px 0;
+    }
+
+    .emergency-card .contact-type {
+        display: inline-block;
+        background: #ff4757;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+
+    .emergency-card .phone {
+        font-size: 1.2rem;
+        color: #00ff00;
+        font-weight: bold;
+    }
+
+    .emergency-card .address {
+        color: #e0e0e0;
+        margin-top: 10px;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 40px;
+        color: #aaaaaa;
+    }
+</style>
+
+<div class="detail-hero">
+    <h1> {{ destination.name }}</h1>
+    <div class="meta">
+        <div class="meta-item"> {{ destination.state }}</div>
+        <div class="meta-item"> {{ destination.category|capitalize }}</div>
+        <div class="meta-item"> {{ destination.rating }} Rating</div>
+        <div class="meta-item"> {{ destination.temperature }}</div>
+    </div>
+</div>
+
+<div class="detail-content">
+    <!-- Quick Info -->
+    <div class="section">
+        <div class="rating-box">
+            <div class="big-stars">
+                <div class="star-rating">
+                    {% for i in range(4) %}
+                        {% if i < destination.rating|int %}
+                            <span class="star">★</span>
+                        {% elif i < destination.rating and destination.rating % 1 >= 0.5 %}
+                            <span class="star">★</span>
+                        {% else %}
+                            <span class="star empty">★</span>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="rating-number">{{ destination.rating }}</span>
+                </div>
+            </div>
+            <p style="margin: 10px 0 0 0; font-size: 1.2rem; color: #e0e0e0;">out of 5.0 Rating</p>
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Quick Info:</strong>
+            <p style="margin-top: 10px; line-height: 1.8; color: #e0e0e0;">
+            <strong style="color: #00ff00;">Best Time:</strong> {{ destination.best_season }}<br>
+            <strong style="color: #00ff00;">Daily Cost:</strong> ₹{{ destination.cost_per_day }}<br>
+            <strong style="color: #00ff00;">How to Reach:</strong> {{ destination.how_to_reach }}<br>
+            <strong style="color: #00ff00;">Nearby Cities:</strong> {{ destination.nearby_cities }}
+            </p>
+        </div>
+
+        <div class="description">
+            {{ destination.description }}
+        </div>
+
+        <div class="info-box">
+            <strong>Main Attractions:</strong>
+            <p style="margin-top: 10px; color: #e0e0e0;">{{ destination.attractions }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="section">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab(event, 'hotels')">🏨 Hotels</button>
+            <button class="tab-btn" onclick="showTab(event, 'activities')">🎯 Activities</button>
+            <button class="tab-btn" onclick="showTab(event, 'tips')">💡 Travel Tips</button>
+            <button class="tab-btn" onclick="showTab(event, 'emergency')">🚨 Emergency</button>
+        </div>
+
+        <!-- Hotels Tab -->
+        <div id="hotels" class="tab-content active">
+            <h2 class="section-title">Recommended Hotels</h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="maxPrice">Max Price Per Night (₹):</label>
+                    <input type="number" id="maxPrice" value="50000" onchange="filterHotels('{{ destination.id }}')" min="0" step="100">
+                </div>
+            </div>
+
+            <div id="hotelsList">
+                {% if hotels %}
+                    {% for hotel in hotels %}
+                    <div class="hotel-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0 0 10px 0; color: #1a998c;">{{ hotel.hotel_name }}</h3>
+                                <p style="margin: 5px 0; color: #e0e0e0;">
+                                    <strong style="color:#1a998c;">{{ hotel.category }}</strong> • 
+                                    <span class="stars">
+                                        {% set stars_count = hotel.category.split('-')[0] %}
+                                        {% for i in range(stars_count|int) %}⭐{% endfor %}
+                                    </span>
+                                </p>
+                                <p style="margin: 10px 0; color: #e0e0e0;">{{ hotel.amenities }}</p>
+                                <p style="margin: 10px 0; font-size: 0.9rem; color: #aaaaaa;">📧 {{ hotel.contact }}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="price-tag">₹{{ hotel.price_per_night }}/night</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: #aaaaaa; padding: 40px;">No hotels listed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Activities Tab -->
+        <div id="activities" class="tab-content">
+            <h2 class="section-title">🎯 Activities & Experiences</h2>
+            
+            {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 10px 0; color: #00ff00;">{{ activity.activity_name }}</h3>
+                            <p style="margin: 5px 0; color: #e0e0e0;">
+                                <strong style="color: #00ff00;">{{ activity.category }}</strong> • ⏱️ {{ activity.duration }}
+                            </p>
+                            <p style="margin: 10px 0; color: #e0e0e0;">{{ activity.description }}</p>
+                            <p style="margin: 10px 0; font-size: 0.9rem; color: #aaaaaa;">🕒 Best: {{ activity.best_time }}</p>
+                        </div>
+                        <div style="text-align: right; white-space: nowrap;">
+                            <div class="price-tag">₹{{ activity.cost }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #aaaaaa; padding: 40px;">No activities listed yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Tips Tab -->
+        <div id="tips" class="tab-content">
+            <h2 class="section-title">💡 Travel Tips</h2>
+            
+            {% if tips %}
+                {% for tip in tips %}
+                <div class="tip-card">
+                    <h3 style="margin: 0 0 10px 0; color: #00ff00;">{{ tip.title }}</h3>
+                    <p style="margin: 0; color: #e0e0e0; line-height: 1.6;">{{ tip.description }}</p>
+                    <span style="display: inline-block; margin-top: 10px; background: linear-gradient(135deg, rgba(0, 122, 128, 0.2) 0%, rgba(0, 95, 102, 0.2) 100%); color: #00ff00; padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; border: 1px solid #00ff00;">{{ tip.tip_category }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #aaaaaa; padding: 40px;">No tips available yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Emergency Tab -->
+        <div id="emergency" class="tab-content">
+            <h2 class="section-title">🚨 Emergency Contacts</h2>
+            
+            <div id="emergencyList">
+                <div class="loading-spinner">Loading emergency contacts...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Destinations -->
+    {% if similar %}
+    <div class="section">
+        <h2 class="section-title"> Similar Destinations</h2>
+        <div class="similar-grid">
+            {% for dest in similar %}
+            <a href="/destination/{{ dest.id }}" class="similar-card">
+                <img src="{{ dest.image_url }}" alt="{{ dest.name }}" data-fallback="https://via.placeholder.com/300x200?text={{ dest.name }}">
+                <div class="similar-card-content">
+                    <h3>{{ dest.name }}</h3>
+                    <p>{{ dest.state }}</p>
+                    <div class="stars">
+                        {% for i in range(dest.rating|int) %}⭐{% endfor %}
+                        {{ dest.rating }}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA Section -->
+    <div style="background: linear-gradient(135deg, #007a80 0%, #005f66 100%); color: white; padding: 40px; border-radius: 15px; text-align: center; margin-top: 50px;">
+        <h2 style="margin: 0 0 15px 0; color: white;">Ready to Explore {{ destination.name }}?</h2>
+        <p style="margin: 0 0 20px 0; font-size: 1.1rem;">Book your perfect trip to {{ destination.name }} with TravelAI</p>
+        <a href="/planner" style="display: inline-block; background: #00ff00; color: #000000; padding: 15px 30px; border-radius: 25px; text-decoration: none; font-weight: bold;">Plan Your Trip</a>
+    </div>
+</div>
+
+<script>
+    // Function to generate star rating HTML
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let starsHtml = '<div class="star-rating">';
+        
+        // Add full stars
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<span class="star">★</span>';
+        }
+        
+        // Add half star if needed
+        if (hasHalfStar) {
+            starsHtml += '<span class="star">★</span>';
+        }
+        
+        // Add empty stars
+        for (let i = 0; i < emptyStars; i++) {
+            starsHtml += '<span class="star empty">★</span>';
+        }
+        
+        starsHtml += '<span class="rating-number">' + rating.toFixed(1) + '</span>';
+        starsHtml += '</div>';
+        
+        return starsHtml;
+    }
+
+    function showTab(event, tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Remove active from all buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+        
+        // Load emergency contacts when tab is shown
+        if (tabName === 'emergency') {
+            loadEmergencyContacts('{{ destination.id }}');
+        }
+    }
+
+    function filterHotels(destId) {
+        const maxPrice = document.getElementById('maxPrice').value;
+        fetch(`/api/hotels/${destId}?min=0&max=${maxPrice}`)
+            .then(res => res.json())
+            .then(hotels => {
+                let html = '';
+                if (hotels.length === 0) {
+                    html = '<p style="text-align: center; color: #aaaaaa; padding: 40px;">No hotels in this price range.</p>';
+                } else {
+                    hotels.forEach(hotel => {
+                        // Extract star count from category (e.g., "5-Star" -> 5)
+                        let starsCount = 0;
+                        if (hotel.category && hotel.category.includes('-')) {
+                            starsCount = Number.parseInt(hotel.category.split('-')[0]) || 0;
+                        }
+                        
+                        let stars = '';
+                        for (let i = 0; i < starsCount; i++) {
+                            stars += '⭐';
+                        }
+                        
+                        html += `
+                            <div class="hotel-card">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div style="flex: 1;">
+                                        <h3 style="margin: 0 0 10px 0; color: #00ff00;">${hotel.hotel_name}</h3>
+                                        <p style="margin: 5px 0; color: #e0e0e0;">
+                                            <strong style="color: #00ff00;">${hotel.category}</strong> • 
+                                            <span class="stars">${stars}</span>
+                                        </p>
+                                        <p style="margin: 10px 0; color: #e0e0e0;">${hotel.amenities}</p>
+                                        <p style="margin: 10px 0; font-size: 0.9rem; color: #aaaaaa;">📧 ${hotel.contact}</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="price-tag">₹${hotel.price_per_night}/night</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById('hotelsList').innerHTML = html;
+            });
+    }
+
+    // Load emergency contacts
+    function loadEmergencyContacts(destId) {
+        const emergencyList = document.getElementById('emergencyList');
+        
+        fetch(`/api/emergency/${destId}`)
+            .then(res => res.json())
+            .then(contacts => {
+                if (contacts.length === 0) {
+                    emergencyList.innerHTML = `
+                        <div class="info-box">
+                            <p style="text-align: center; color: #aaaaaa; padding: 20px;">
+                                No emergency contacts available for this destination yet.
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    contacts.forEach(contact => {
+                        html += `
+                            <div class="emergency-card">
+                                <span class="contact-type">${contact.contact_type || 'Emergency'}</span>
+                                <h3>${contact.name}</h3>
+                                <p class="phone">📞 ${contact.phone}</p>
+                                ${contact.address ? `<p class="address">📍 ${contact.address}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    emergencyList.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading emergency contacts:', error);
+                emergencyList.innerHTML = `
+                    <div class="info-box">
+                        <p style="text-align: center; color: #aaaaaa; padding: 20px;">
+                            Unable to load emergency contacts. Please try again later.
+                        </p>
+                    </div>
+                `;
+            });
+    }
+
+    // Handle image load errors for similar destinations
+    document.querySelectorAll('img[data-fallback]').forEach(img => {
+        img.addEventListener('error', function() {
+            this.src = this.dataset.fallback;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,228 @@
+/* TravelAI - Black & Green Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #000000;
+    color: #ffffff; /* FIXED */
+    min-height: 100vh;
+}
+
+/* Navigation - Horizontal */
+nav {
+    background: #007a80;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(251, 253, 253, 0.5);
+}
+
+nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    align-items: center;
+}
+
+nav ul li {
+    background: transparent;
+}
+
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+nav a:hover {
+    background: #005f66;
+}
+
+nav .btn-primary {
+    background: #000000;
+    color: #007a80;
+}
+
+nav .btn-secondary {
+    background: #000000; /* FIXED */
+    color: #ffffff;
+}
+
+nav .btn-danger {
+    background: #ff4444;
+    color: #ffffff;
+}
+
+/* Main Content */
+main {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1, h2 {
+    color: #fcfefe;
+    text-align: center;
+}
+
+h3 {
+    color: #ffffff;
+}
+
+/* Forms */
+form {
+    background: #1c1c1c; /* FIXED */
+    padding: 35px;
+    margin: 30px auto;
+    width: 420px;
+    border-radius: 15px;
+    border: 2px solid #007a80;
+}
+
+label {
+    color: #ffffff;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #007a80;
+    border-radius: 10px;
+    font-size: 1em;
+    background: #000000;
+    color: #ffffff;
+}
+
+input::placeholder {
+    color: #aaaaaa;
+}
+
+input:focus, select:focus, textarea:focus {
+    border: 2px solid #00adb5;
+    outline: none;
+    box-shadow: 0 0 10px rgba(0,173,181,0.3);
+}
+
+button, .btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #007a80;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover, .btn:hover {
+    background: #005f66;
+}
+
+/* Lists */
+li {
+    background: #1c1c1c;
+    border: 1px solid #007a80;
+    color: #ffffff;
+}
+
+/* Destination Cards */
+.destination-card {
+    background: #1c1c1c;
+    border: 2px solid #007a80;
+}
+
+.destination-card p {
+    color: #cccccc;
+}
+
+/* Results */
+.result-card {
+    background: #1c1c1c;
+    border: 2px solid #007a80;
+}
+
+/* Planner Sections */
+.input-section {
+    background: #1c1c1c; /* FIXED */
+    border: 2px solid #007a80;
+}
+
+.input-section label {
+    color: #ffffff; /* FIXED */
+}
+
+.input-section input,
+.input-section select {
+    background: #000000; /* FIXED */
+    color: #ffffff;
+}
+
+.results-section {
+    background: #1c1c1c;
+    border: 2px solid #007a80;
+}
+
+/* Interest Buttons */
+.interest-btn {
+    background: #000000; /* FIXED */
+    color: #007a80;
+}
+
+.interest-btn:hover,
+.interest-btn.selected {
+    background: #007a80;
+    color: #ffffff;
+}
+
+/* Detail Sections */
+.detail-section {
+    background: #1c1c1c;
+}
+
+/* Hotel & Activity */
+.hotel-card, .activity-card {
+    background: #000000;
+}
+
+/* Footer */
+footer {
+    background: #1c1c1c;
+}
+
+/* Text fix */
+p, span, div {
+    color: #ffffff;
+}
+
+.text-muted {
+    color: #888 !important;
+}

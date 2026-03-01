@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login - TravelAI{% endblock %}
+
+{% block content %}
+<section class="container mt-40 mb-40">
+    <form method="POST" class="login-form">
+        <h2>Welcome Back! 👋</h2>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 20px; color: white;">
+        <p>Don't have an account? <a href="/register" style="color: #667eea; text-decoration: none; font-weight: bold;">Register here</a></p>
+    </div>
+</section>
+
+<style>
+    .login-form {
+        max-width: 400px;
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        margin: 0 auto;
+    }
+
+    .login-form h2 {
+        text-align: center;
+        color: #667eea;
+        margin-bottom: 30px;
+    }
+
+    .login-form button {
+        width: 100%;
+    }
+</style>
+{% endblock %}

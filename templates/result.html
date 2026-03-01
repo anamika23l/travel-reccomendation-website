@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Results - TravelAI{% endblock %}
+
+{% block content %}
+<style>
+    /* Professional Circular Favorite Button - Meesho Style */
+    .favorite-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .favorite-btn.favorited {
+        background: #ff4757;
+        color: white;
+    }
+    
+    .result-item {
+        position: relative;
+    }
+</style>
+
+<section class="container mt-40 mb-40">
+    <div class="results-container">
+        <h2>📍 Recommendations for {{ interest|capitalize }} Destinations</h2>
+        <p style="color: #666; font-size: 1.1rem; margin-bottom: 30px;">
+            Budget: <strong>₹{{ budget }}</strong> | Category: <strong>{{ interest.capitalize() }}</strong>
+        </p>
+
+        {% if recommendations %}
+        <div>
+            {% for dest in recommendations %}
+            <div class="result-item">
+                <button class="favorite-btn" onclick="toggleFavorite({{ dest.id }}, this)" title="Add to favorites">🤍</button>
+                <img src="{{ dest.image_url }}" alt="{{ dest.name }}" onerror="this.src='https://via.placeholder.com/400x200?text={{ dest.name }}'">
+                <div class="result-info">
+                    <h3 style="margin-top: 0; color: #667eea;">{{ dest.name }}</h3>
+                    <p><strong>Description:</strong> {{ dest.description }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <div>
+                            <p style="margin: 0;"><strong>Cost:</strong> <span style="color: #667eea; font-size: 1.2rem;">₹{{ dest.cost_per_day }}</span></p>
+                            <p style="margin: 5px 0 0 0;"><strong>Type:</strong> <span class="card-type">{{ dest.type }}</span></p>
+                        </div>
+                        <div>
+                            <p style="margin: 0;"><strong>Rating:</strong> <span class="card-rating">⭐ {{ dest.rating }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/recommend" class="btn btn-primary">Try Another Search</a>
+            <a href="/destinations" class="btn btn-secondary" style="margin-left: 10px;">View All Destinations</a>
+        </div>
+        {% else %}
+        <div class="no-results">
+            <h3>😔 No destinations found</h3>
+            <p>Sorry, we couldn't find any {{ interest }} destinations within your budget of ₹{{ budget }}.</p>
+            <p>Try increasing your budget or exploring other categories.</p>
+            <a href="/recommend" class="btn btn-primary" style="margin-top: 20px;">Try Again</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    .result-item h3 {
+        margin-top: 0;
+    }
+
+    .result-info {
+        flex: 1;
+    }
+</style>
+
+<script>
+    // Toggle favorite function
+    function toggleFavorite(destId, btn) {
+        // Check if already favorited
+        const isFavorited = btn.classList.contains('favorited');
+        
+        if (isFavorited) {
+            // Remove from favorites
+            fetch('/api/favorites/' + destId, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(result => {
+                    btn.classList.remove('favorited');
+                    btn.innerHTML = '🤍';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Please login to manage favorites!');
+                });
+        } else {
+            // Add to favorites
+            fetch('/api/favorites/' + destId, { method: 'POST' })
+                .then(res => res.json())
+                .then(result => {
+                    btn.classList.add('favorited');
+                    btn.innerHTML = '❤️';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Please login to add favorites!');
+                });
+        }
+    }
+    
+    // Check favorite status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.favorite-btn');
+        buttons.forEach(btn => {
+            const match = btn.getAttribute('onclick').match(/toggleFavorite\((\d+)/);
+            if (match) {
+                const destId = match[1];
+                fetch('/api/favorites/check/' + destId)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.is_favorite) {
+                            btn.classList.add('favorited');
+                            btn.innerHTML = '❤️';
+                        } else {
+                            btn.innerHTML = '🤍';
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '🤍';
+                    });
+            }
+        });
+    });
+</script>
+{% endblock %}
